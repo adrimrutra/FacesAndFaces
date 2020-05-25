@@ -1,0 +1,42 @@
+----------------------------------------------------------------------------------
+docker --version
+docker images
+docker pull hello-world:latest
+docker run hello-world:latest
+----------------------------------------------------------------------------------
+cls - clear cmd
+docker ps
+docker ps --help
+docker stop rabbit-corona
+docker rm bf92b26affb1 - remove container and then remove image
+docker rmi hello-world:latest   - remove image
+----------------------------------------------------------------------------------
+
+docker run -p 15672:15672 -p 5672:5672 --name rabbit-corona rabbitmq:3-management
+
+ctrl+ c 
+cls -clean
+docker ps
+
+-------------------------------------------------------------------------------------
+docker run -e "ACCEPT_EULA=Y" -e "MSSQL_SA_PASSWORD=Passw0rd(1)" --name ordermssql -p 1445:1433 mcr.microsoft.com/mssql/server:2017-latest-ubuntu
+
+-------------------------------------------------------------  EntityFramework  --------------------------------------------------------------------
+add-migration "Initial" -output Persistent/Migrations
+Update-Database
+Drop-Database
+------------------------------------------------
+Cmdlet                      Description
+------------------------------------------------------------------------------------------------------------------------------------------
+Add-Migration               Adds a new migration.
+Drop-Database               Drops the database.
+Get-DbContext               Gets information about a DbContext type.
+Remove-Migration            Removes the last migration.
+Scaffold-DbContext          Scaffolds a DbContext and entity types for a database.
+Script-Migration            Generates a SQL script from migrations.
+Update-Database             Updates the database to a specified migration.
+---------------------------------------------------------------------------------------
+"ConnectionStrings": {
+    "OrdersContextConnection": "Server=localhost,1445;Database=OrdersDb; user Id=SA; password=Passw0rd(1);MultipleActiveResultSets=True"
+},
+----------------------------------------------------------------------------------------------------------------------------------------------------
