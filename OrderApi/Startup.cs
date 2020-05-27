@@ -13,6 +13,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using OrderApi.Hubs;
+using OrderApi.Messages.Consumers;
 using OrdersApi.Messages.Consumers;
 using OrdersApi.Persistence;
 using OrdersApi.Services;
@@ -36,36 +38,60 @@ namespace OrderApi
                 options.UseSqlServer(Configuration.GetConnectionString("OrdersContextConnection"));
             });
 
+            services.AddSignalR()
+                .AddJsonProtocol(options => 
+                {
+                    options.PayloadSerializerOptions.PropertyNamingPolicy = null;
+                });
+
             services.AddHttpClient();
+
+
             services.AddTransient<IOrderRepository, OrderRepository>();
 
-            services.AddMassTransit(c =>
+            services.AddMassTransit(
+                c =>
+                {
+                    c.AddConsumer<RegisterOrderCommandConsumer>();
+                    c.AddConsumer<OrderDispatchedEventConsumer>();
+                });
+
+
+            services.AddSingleton(provider => Bus.Factory.CreateUsingRabbitMq(cfg =>
             {
-                c.AddConsumer<RegisterOrderCommandConsumer>();
-            });
+                var host = cfg.Host("localhost", "/", h => { });
+                cfg.ReceiveEndpoint(RabbitMqMassTransitConstants.RegisterOrderCommandQueue, e =>
+                {
+                    e.PrefetchCount = 16;
+                    e.UseMessageRetry(x => x.Interval(2, TimeSpan.FromSeconds(10)));
+                    e.Consumer<RegisterOrderCommandConsumer>(provider);
 
-            services.AddSingleton(provider => Bus.Factory.CreateUsingRabbitMq(
-              cfg =>
-              {
-                  var host = cfg.Host("localhost", "/", h => { });
-                  cfg.ReceiveEndpoint(RabbitMqMassTransitConstants.RegisterOrderCommandQueue, e =>
-                  {
-                      e.PrefetchCount = 16;
-                      e.UseMessageRetry(x => x.Interval(2, TimeSpan.FromSeconds(10)));
-                      e.Consumer<RegisterOrderCommandConsumer>(provider);
-                  });
+                });
 
-                  cfg.ConfigureEndpoints(provider);
-              }));
+                cfg.ReceiveEndpoint(RabbitMqMassTransitConstants.OrderDispatchedServiceQueue, e =>
+                {
+                    e.PrefetchCount = 16;
+                    e.UseMessageRetry(x => x.Interval(2, 100));
+
+
+                    e.Consumer<OrderDispatchedEventConsumer>(provider);
+                    //  EndpointConvention.Map<OrderDispatchedEvent>(e.InputAddress);
+
+                });
+
+                cfg.ConfigureEndpoints(provider);
+            }));
             services.AddSingleton<IHostedService, BusService>();
             services.AddCors(options =>
             {
                 options.AddPolicy("CorsPolicy",
                     builder => builder
-                    .AllowAnyMethod()
-                    .AllowAnyHeader()
-                    .SetIsOriginAllowed((host) => true)
-                    .AllowCredentials());
+                       .AllowAnyMethod()
+                       .AllowAnyHeader()
+                       .SetIsOriginAllowed((host) => true)
+                       .AllowCredentials());
+
+
             });
             services.AddControllers();
         }
@@ -87,6 +113,7 @@ namespace OrderApi
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+                endpoints.MapHub<OrderHub>("/orderhub");
             });
         }
     }

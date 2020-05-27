@@ -20,7 +20,7 @@ cls -clean
 docker ps
 
 -------------------------------------------------------------  EntityFramework  -----------------------------------------------------------------
-add-migration "Initial" -output Persistent/Migrations
+add-migration "Initial" -output Persistence/Migrations
 Update-Database
 Drop-Database
 ------------------------------------------------

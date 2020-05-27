@@ -34,29 +34,61 @@
         </tr>
     </thead>
     <tbody>
-@foreach (var order in Model) {
-        <tr class="clickeble" onclick="location.href='@(Url.Action("Details", "OrderMenagement", new {orderId = order.OrderId }))'">
-            <td>
-                @Html.DisplayFor(modelItem => order.OrderId)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => order.UserEmail)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => order.PictureUrl)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => order.StatusString)
-            </td>
-            <td>
-                <img src="@order.ImageString" alt="Alternate Text" width="50" height="50" />
-            </td>
-            <td>
-                @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
-                @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |
-                @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
-            </td>
-        </tr>
-}
+        @foreach (var order in Model)
+        {
+            <tr class="clickeble" onclick="location.href='@(Url.Action("Details", "OrderMenagement", new {orderId = order.OrderId }))'">
+                <td>
+                    @Html.DisplayFor(modelItem => order.OrderId)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => order.UserEmail)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => order.PictureUrl)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => order.StatusString)
+                </td>
+                <td>
+                    <img src="@order.ImageString" alt="Alternate Text" width="50" height="50" />
+                </td>
+                <td>
+                    @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
+                    @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |
+                    @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
+                </td>
+            </tr>
+        }
     </tbody>
 </table>
+
+@section Scripts {
+    <script src="~/lib/signalr/dist/browser/signalr.js"></script>
+    <script type="text/javascript">
+        var timerId;
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl('http://localhost:5500/orderhub')
+            .configureLogging(signalR.LogLevel.Information)
+            .withAutomaticReconnect()
+            .build();
+
+        connection.on('UpdateOrder', (messsage, orderId) => {
+            const encodedMsg = messsage + ":" + orderId;
+            console.log(encodedMsg);
+            if (orderId && orderId.lenght) {
+                toastr.success(orderId + ' Updated to status' + messsage);
+                refreshPage();
+            }
+        });
+
+        function refreshPage() {
+            clearTimeout(timerId);
+            timerId = setTimeout(function () {
+                window.location.reload();
+            }, 3000)
+        }
+
+        connection.start().catch(err => console.error(err.toString()));
+
+    </script>
+}
