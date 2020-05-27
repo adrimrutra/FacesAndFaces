@@ -13,15 +13,13 @@ docker rmi hello-world:latest   - remove image
 ----------------------------------------------------------------------------------
 
 docker run -p 15672:15672 -p 5672:5672 --name rabbit-corona rabbitmq:3-management
+docker run -e "ACCEPT_EULA=Y" -e "MSSQL_SA_PASSWORD=Passw0rd(1)" --name ordermssql -p 1445:1433 mcr.microsoft.com/mssql/server:2017-latest-ubuntu
 
 ctrl+ c 
 cls -clean
 docker ps
 
--------------------------------------------------------------------------------------
-docker run -e "ACCEPT_EULA=Y" -e "MSSQL_SA_PASSWORD=Passw0rd(1)" --name ordermssql -p 1445:1433 mcr.microsoft.com/mssql/server:2017-latest-ubuntu
-
--------------------------------------------------------------  EntityFramework  --------------------------------------------------------------------
+-------------------------------------------------------------  EntityFramework  -----------------------------------------------------------------
 add-migration "Initial" -output Persistent/Migrations
 Update-Database
 Drop-Database

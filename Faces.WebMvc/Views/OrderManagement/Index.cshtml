@@ -1,0 +1,62 @@
+﻿@model IEnumerable<Faces.WebMvc.ViewModels.OrderViewModel>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.OrderId)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.UserEmail)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.PictureUrl)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.StatusString)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ImageData)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ImageString)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var order in Model) {
+        <tr class="clickeble" onclick="location.href='@(Url.Action("Details", "OrderMenagement", new {orderId = order.OrderId }))'">
+            <td>
+                @Html.DisplayFor(modelItem => order.OrderId)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => order.UserEmail)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => order.PictureUrl)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => order.StatusString)
+            </td>
+            <td>
+                <img src="@order.ImageString" alt="Alternate Text" width="50" height="50" />
+            </td>
+            <td>
+                @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
+                @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |
+                @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace Faces.WebMvc.ViewModels
@@ -22,5 +23,7 @@ namespace Faces.WebMvc.ViewModels
         public string StatusString { get; set; }
 
         public byte[] ImageData { get; set; }
+        public string ImageString { get; set; }
+        public List<OrderDetailViewModel> OrderDetails { get; set; }
     }
 }

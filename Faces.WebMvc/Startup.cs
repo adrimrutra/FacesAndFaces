@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Faces.WebMvc.RestClients;
 using Faces.WebMvc.Services;
 using MassTransit;
 using Microsoft.AspNetCore.Builder;
@@ -32,6 +33,7 @@ namespace Faces.WebMvc
                     services.AddSingleton(provider => provider.GetRequiredService<IBusControl>());
                     services.AddSingleton<IHostedService, BusService>();
                 }));
+            services.AddHttpClient<IOrderManagementApi, OrderManagementApi>();
 
             services.AddControllersWithViews();
         }
